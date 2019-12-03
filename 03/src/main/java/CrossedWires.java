@@ -3,29 +3,57 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
 public class CrossedWires {
     public static void main(String[] args) throws IOException {
-        partOne();
+        List<List<Coordinate>> wires = getInputAsStream();
+        List<Coordinate> wireOne = wires.get(0);
+        List<Coordinate> wireTwo = wires.get(1);
+        List<Coordinate> wireOneIntersectors = wireOne
+            .stream()
+            .parallel()
+            .filter(x -> wireTwo.contains(x))
+            .collect(Collectors.toList());
+        List<Coordinate> wireTwoIntersectors = wireTwo
+            .stream()
+            .filter(x -> wireOneIntersectors.contains(x))
+            .collect(Collectors.toList());
+
+        // Part one
+        partOne(wireOneIntersectors);
+
+        // Part two
+        partTwo(wireOneIntersectors, wireTwoIntersectors);
     }
 
-    private static void partOne() throws IOException {
-        List<List<Coordinate>> wires = getInputAsStream();
-        List<Integer> intersections = wires.get(0)
-            .stream()
-            .filter(x -> wires.get(1).contains(x))
-            .map(x -> x.origoDistance())
-            .collect(Collectors.toList());
+    private static void partTwo(List<Coordinate> wireOne, List<Coordinate> wireTwo) {
+        List<Integer> combinedPlacements = new ArrayList<>();
+        wireOne.forEach(point -> {
+            wireTwo.forEach(x -> {
+                if (x.equals(point)) {
+                combinedPlacements.add(x.getPlacement() + point.getPlacement());
+                }
+            });
+        });
+        Collections.sort(combinedPlacements);
+        System.out.print("Solution for part #2: ");
+        System.out.println(combinedPlacements.get(0));
+    }
+
+    private static void partOne(List<Coordinate> intersections) {
+        Collections.sort(intersections);
         System.out.print("Solution for part #1: ");
-        System.out.println(Collections.min(intersections));
+        System.out.println(intersections.get(0).origoDistance());
     }
 
     private static List<Coordinate> parseWire(String input) {
         List<Coordinate> wire = new ArrayList<>();
-        Coordinate start = new Coordinate(0,0);
+        Coordinate start = new Coordinate(0,0,0);
         wire.add(start);
 
         Arrays.stream(input.split(","))
@@ -44,6 +72,7 @@ public class CrossedWires {
         while (steps > 0) {
             steps--;
             newCoordinate = newCoordinate.clone();
+            newCoordinate.incrementPlacement();
             switch (direction) {
                 case 'U':
                     newCoordinate.incrementY();
@@ -83,16 +112,25 @@ public class CrossedWires {
                 "");
     }
 
-    private static class Coordinate {
-        private int x, y;
-        
-        public Coordinate(int x, int y) {
+    private static class Coordinate implements Comparable<Coordinate> {
+        private int x, y, placement;
+
+        public Coordinate(int x, int y, int placement) {
             this.x = x;
             this.y = y;
+            this.placement = placement;
         }
 
         public Coordinate clone() {
-            return new Coordinate(x, y);
+            return new Coordinate(x, y, placement);
+        }
+
+        public int getPlacement() {
+            return this.placement;
+        }
+
+        public void incrementPlacement() {
+            this.placement++;
         }
 
         public void incrementX() {
@@ -116,6 +154,11 @@ public class CrossedWires {
         }
 
         @Override
+        public int hashCode() {
+            return (x + y) * placement;
+        }
+
+        @Override
         public boolean equals(Object obj) {
             if (obj.getClass() != this.getClass()) {
                 return false;
@@ -128,6 +171,11 @@ public class CrossedWires {
         @Override
         public String toString() {
             return String.format("Coordinate(%s,%s)", x, y);
+        }
+
+        @Override
+        public int compareTo(Coordinate other) {
+            return origoDistance() - other.origoDistance();
         }
     }
 }
