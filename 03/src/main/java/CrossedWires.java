@@ -3,9 +3,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
@@ -154,11 +152,6 @@ public class CrossedWires {
         }
 
         @Override
-        public int hashCode() {
-            return (x + y) * placement;
-        }
-
-        @Override
         public boolean equals(Object obj) {
             if (obj.getClass() != this.getClass()) {
                 return false;
@@ -166,11 +159,6 @@ public class CrossedWires {
 
             Coordinate other = (Coordinate) obj;
             return this.x == other.x && this.y == other.y;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Coordinate(%s,%s)", x, y);
         }
 
         @Override
