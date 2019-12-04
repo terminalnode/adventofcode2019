@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+mainClassName = 'SecureContainer'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+}
+
+test {
+}
