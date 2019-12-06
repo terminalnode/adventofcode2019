@@ -1,12 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class UniversalOrbitMap {
@@ -20,8 +14,41 @@ class UniversalOrbitMap {
                 .values()
                 .stream()
                 .mapToInt(x -> x.getNumberOfOrbitingPlanets())
-                .sum()
-            );
+                .sum());
+
+        System.out.println("Solution part 2:");
+        System.out.println(shortestPath(
+            planetIndex.get("YOU"),
+            planetIndex.get("SAN"),
+            planetIndex.values()) - 2);
+    }
+
+    private static int shortestPath(Planet start, Planet stop, Collection<Planet> planets) {
+        int stepsTaken = 0;
+        Set<Planet> visitedSet = new HashSet<>();
+        Set<Planet> currentPlanets = new HashSet<>();
+        visitedSet.add(start);
+        currentPlanets.add(start);
+        
+        while (!visitedSet.contains(stop)) {
+            Set<Planet> newCurrentPlanets = new HashSet<>();
+
+            currentPlanets
+                .stream()
+                .forEach(mainPlanet -> mainPlanet.getNearbyPlanets()
+                    .stream()
+                    .forEach(orbitingPlanet -> {
+                        if (!visitedSet.contains(orbitingPlanet)) {
+                            visitedSet.add(orbitingPlanet);
+                            newCurrentPlanets.add(orbitingPlanet);
+                        }
+                    })
+                );
+            stepsTaken++;
+            currentPlanets = newCurrentPlanets;
+        }
+
+        return stepsTaken;
     }
 
     private static Map<String, Planet> createPlanetIndex(List<String[]> orbitalIndex) {
@@ -41,6 +68,7 @@ class UniversalOrbitMap {
                 Planet orbited = planetIndex.get(x[0]);
                 Planet orbiting = planetIndex.get(x[1]);
                 orbited.addOrbitingPlanet(orbiting);
+                orbiting.addParentPlanet(orbited);
             });
 
         return planetIndex;
@@ -73,14 +101,25 @@ class UniversalOrbitMap {
     private static class Planet {
         private final String name;
         private final Set<Planet> orbitingPlanets;
+        private final Set<Planet> nearbyPlanets;
 
         public Planet(String name) {
             this.name = name;
             this.orbitingPlanets = new HashSet<>();
+            this.nearbyPlanets = new HashSet<>();
         }
 
         public void addOrbitingPlanet(Planet planet) {
             orbitingPlanets.add(planet);
+            nearbyPlanets.add(planet);
+        }
+
+        public void addParentPlanet(Planet planet) {
+            nearbyPlanets.add(planet);
+        }
+
+        public Set<Planet> getNearbyPlanets() {
+            return nearbyPlanets;
         }
 
         public int getNumberOfOrbitingPlanets() {
@@ -90,6 +129,25 @@ class UniversalOrbitMap {
                 .mapToInt(x -> x.getNumberOfOrbitingPlanets())
                 .sum();
             return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj.getClass() != this.getClass()) {
+                return false;
+            }
+
+            Planet otherPlanet = (Planet) obj;
+            if (otherPlanet.name.equals(this.name)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
         }
     }
 }
