@@ -69,7 +69,8 @@ public class ChanceOfAsteroids {
                 return index + 2;
 
             case 4: // Output
-                System.out.printf("IntComputer output: %s\n", program[program[index + 1]]);
+                args = decodeParams(1, index, paramMode, program);
+                System.out.printf("IntComputer output: %s\n", args[0]);
                 return index + 2;
 
             case 5: // Jump if true
