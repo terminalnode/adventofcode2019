@@ -39,14 +39,7 @@ class AmplificationCircuit {
                 inputSignal = cpu.run().get(0);
             }
 
-            if (phaseSettings[0] == 1 && phaseSettings[1] == 0 && phaseSettings[2] == 4 && phaseSettings[3] == 3 && phaseSettings[4] == 2) {
-                prettyPrintArray(phaseSettings);
-                System.out.println(inputSignal);
-            }
-
             if (inputSignal > maxResult) {
-                prettyPrintArray(phaseSettings);
-                System.out.println(phaseSettings[0]);
                 maxResult = inputSignal;
                 bestArray = phaseSettings.clone();
             }
@@ -76,6 +69,7 @@ class AmplificationCircuit {
                 break;
             }
         }
+
         if (phaseSettings[0] == 5) {
             return false;
         } else {
@@ -89,7 +83,8 @@ class AmplificationCircuit {
                 return incrementArray(phaseSettings);
             }
         }
-        return phaseSettings[0] != 5;
+
+        return true;
     }
 
     private static int[] getInput(String fileName) throws IOException {
