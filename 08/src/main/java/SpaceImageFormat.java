@@ -51,7 +51,7 @@ class SpaceImageFormat {
     }
 
     private static void partOne(List<List<Integer>> layers) {
-        int mostZeroes = Integer.MAX_VALUE;
+        int fewestZeroes = Integer.MAX_VALUE;
         int result = -1;
         for (List<Integer> layer : layers) {
             int numZeroes = 0;
@@ -64,8 +64,8 @@ class SpaceImageFormat {
                     case 2: numTwos++; break;
                 }
             }
-            if (numZeroes < mostZeroes) {
-                mostZeroes = numZeroes;
+            if (numZeroes < fewestZeroes) {
+                fewestZeroes = numZeroes;
                 result = numOnes * numTwos;
             }
         }
