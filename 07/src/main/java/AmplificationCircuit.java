@@ -9,41 +9,54 @@ import java.util.stream.Collectors;
 
 class AmplificationCircuit {
     public static void main(String[] args) throws IOException {
+        // PART ONE
         // Test1 should return 43210 from input 4,3,2,1,0
-        //partOne("test1");
+        solve("test1", 0);
 
         // Test2 should return 54321 from input 0,1,2,3,4
-        //partOne("test2");
+        solve("test2", 0);
 
         // Test3 should return 65210 from input 1,0,4,3,2
-        //partOne("test3");
+        solve("test3", 0);
 
-        // The real input
-        partOne("input");
+        // The real input, should return 38500 from input 0,3,2,4,1
+        solve("input", 0);
+
+        // PART TWO
+        // Test4 should return 139629729 for input 9,8,7,6,5
+        solve("test4", 5);
+
+        // Test5 should return 18216 for input 9,7,8,5,6
+        solve("test5", 5);
+
+        // The real input, should return 33660560 for input 2,0,4,1,3
+        solve("input", 5);
     }
 
-    public static void partOne(String fileName) throws IOException {
+    public static void solve(String fileName, int offsetPhaseSetting) throws IOException {
         int[] application = getInput(fileName);
         int[] maxArray = null;
         int[] phaseSettings = new int[]{0,0,0,0,-1};
         int maxResult = 0;
 
-
         // Create all the amplifiers and connect inputs and outputs
         List<IntcodeComputer> amplifiers = createAmplifiers(phaseSettings.length, application);
+        IntcodeComputer amp5 = amplifiers.get(4);
 
         while (incrementArray(phaseSettings)) {
             // Initialize or reset the amplifiers, then add phase settings
             // and initialize the first amplifier with 0 as input.
             amplifiers.forEach(x -> x.reinitialize());
             for (int i = 0; i < phaseSettings.length; i++) {
-                amplifiers.get(i).addInput(phaseSettings[i]);
+                amplifiers.get(i).addInput(phaseSettings[i] + offsetPhaseSetting);
             }
             amplifiers.get(0).addInput(0);
 
-            amplifiers.forEach(x -> x.run());
+            while (!amp5.isHalted()) {
+                amplifiers.forEach(x -> x.run());
+            }
 
-            int result = amplifiers.get(amplifiers.size() - 1).getOutput().peek();
+            int result = amp5.getOutput().peek();
             if (result > maxResult) {
                 maxResult = result;
                 maxArray = phaseSettings.clone();
