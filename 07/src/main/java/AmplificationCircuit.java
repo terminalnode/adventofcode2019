@@ -1,52 +1,71 @@
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
+
 class AmplificationCircuit {
     public static void main(String[] args) throws IOException {
-        int[] controllerSoftware;
-
         // Test1 should return 43210 from input 4,3,2,1,0
-        //controllerSoftware = getInput("test1");
+        //partOne("test1");
 
         // Test2 should return 54321 from input 0,1,2,3,4
-        //controllerSoftware = getInput("test2");
+        //partOne("test2");
 
         // Test3 should return 65210 from input 1,0,4,3,2
-        //controllerSoftware = getInput("test3");
+        //partOne("test3");
 
         // The real input
-        controllerSoftware = getInput("input");
+        partOne("input");
+    }
 
+    public static void partOne(String fileName) throws IOException {
+        int[] application = getInput(fileName);
+        int[] maxArray = null;
         int[] phaseSettings = new int[]{0,0,0,0,-1};
         int maxResult = 0;
-        int[] bestArray = null;
+
+
+        // Create all the amplifiers and connect inputs and outputs
+        List<IntcodeComputer> amplifiers = createAmplifiers(phaseSettings.length, application);
 
         while (incrementArray(phaseSettings)) {
-            int inputSignal = 0;
-
-            for (int phaseSetting : phaseSettings) {
-                // Create input stream to be used by the IntcodeComputer's scanner
-                InputStream is = new ByteArrayInputStream(
-                    String.format("%s\n%s", phaseSetting, inputSignal)
-                        .getBytes("UTF-8"));
-
-                // Instantiate a new IntcodeComputer for the next amplifier
-                IntcodeComputer cpu = new IntcodeComputer(controllerSoftware, is);
-                inputSignal = cpu.run().get(0);
+            // Initialize or reset the amplifiers, then add phase settings
+            // and initialize the first amplifier with 0 as input.
+            amplifiers.forEach(x -> x.reinitialize());
+            for (int i = 0; i < phaseSettings.length; i++) {
+                amplifiers.get(i).addInput(phaseSettings[i]);
             }
+            amplifiers.get(0).addInput(0);
 
-            if (inputSignal > maxResult) {
-                maxResult = inputSignal;
-                bestArray = phaseSettings.clone();
+            amplifiers.forEach(x -> x.run());
+
+            int result = amplifiers.get(amplifiers.size() - 1).getOutput().peek();
+            if (result > maxResult) {
+                maxResult = result;
+                maxArray = phaseSettings.clone();
             }
         }
-        System.out.println("Result");
-        prettyPrintArray(bestArray);
+        prettyPrintArray(maxArray);
         System.out.println(maxResult);
+    }
+
+    public static List<IntcodeComputer> createAmplifiers(int num, int[] application) {
+        List<IntcodeComputer> amps = new ArrayList<>();
+        IntcodeComputer lastAmp = null;
+        for (int i = 0; i < num; i++) {
+            IntcodeComputer newAmp = new IntcodeComputer(application);
+            if (lastAmp != null) {
+                newAmp.setInput(lastAmp.getOutput());
+            }
+            amps.add(newAmp);
+            lastAmp = newAmp;
+        }
+        amps.get(0).setInput(amps.get(4).getOutput());
+        return amps;
     }
 
     private static void prettyPrintArray(int[] array) {

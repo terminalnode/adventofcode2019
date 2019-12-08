@@ -1,28 +1,63 @@
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.LinkedList;
+import java.util.Queue;
 
 class IntcodeComputer {
-    private final Scanner scanner;
-    private final int[] application;
-    private List<Integer> output;
+    private final int[] originalApplication;
+    private final Queue<Integer> output;
+    private int[] application;
+    private boolean halted;
+    private boolean paused;
+    private Integer index;
+    private Queue<Integer> input;
 
-    public IntcodeComputer(int[] application, InputStream is) {
-        this.scanner = new Scanner(is);
-        this.application = application;
-        this.output = new ArrayList<>();
+    public IntcodeComputer(int[] application) {
+        this.originalApplication = application;
+        this.output = new LinkedList<>();
+        this.halted = false;
+        this.paused = false;
+        this.input = null;
+        this.application = null;
+        this.index = null;
     }
 
-    public List<Integer> run() {
-        Integer index = 0;
-        int[] application = this.application.clone();
+    public Queue<Integer> getInput() {
+        return input;
+    }
 
-        while (index != null) {
-            index = intcodeProcessor(index, application, scanner);
-        }
-
+    public Queue<Integer> getOutput() {
         return output;
+    }
+
+    public void setInput(Queue<Integer> newInput) {
+        input = newInput;
+    }
+
+    public void addInput(int value) {
+        input.add(value);
+    }
+
+    public boolean isHalted() {
+        return halted;
+    }
+
+    public void reinitialize() {
+        output.clear();
+        input.clear();
+        application = originalApplication.clone();
+        index = 0;
+        halted = false;
+    }
+
+    public void run() {
+        if (halted) {
+            return;
+        }
+        
+        paused = false;
+
+        while (!halted && !paused) {
+            intcodeProcessor();
+        }
     }
 
     private static class OpCodes {
@@ -37,9 +72,14 @@ class IntcodeComputer {
         public static final int EXIT = 99;
     }
 
-    private Integer intcodeProcessor(int index, int[] program, Scanner scanner) {
+    private static class Modes {
+        public static final int POSITION = 0;
+        public static final int IMMEDIATE = 1;
+    }
+
+    private void intcodeProcessor() {
         // Convert OP code + mode to string
-        String opCodeAndMode = Integer.toString(program[index]);
+        String opCodeAndMode = Integer.toString(application[index]);
         // Extract last two digits to retrieve the opcode.
         int opCode = Integer.parseInt(opCodeAndMode.replaceAll(".*(?=\\d\\d$)", ""));
         // Extract everything but the last two digits to retrieve the parameter modes.
@@ -55,86 +95,99 @@ class IntcodeComputer {
         paramMode[2] = paramModes.length() >= 3 ?
             Integer.parseInt("" + paramModes.charAt(paramModes.length() - 3)) : 0;
 
-        int[] args;
+        int first, second;
         switch (opCode) {
             case OpCodes.ADDITION:
-                args = decodeParams(2, index, paramMode, program);
-                program[program[index + 3]] = args[0] + args[1];
-                return index + 4;
+                first = getParam(1, index, paramMode);
+                second = getParam(2, index, paramMode);
+                application[application[index + 3]] = first + second;
+                index += 4;
+                break;
 
             case OpCodes.MULTIPLICATION:
-                args = decodeParams(2, index, paramMode, program);
-                program[program[index + 3]] = args[0] * args[1];
-                return index + 4;
+                first = getParam(1, index, paramMode);
+                second = getParam(2, index, paramMode);
+                application[application[index + 3]] = first * second;
+                index += 4;
+                break;
 
             case OpCodes.INPUT:
-                // System.out.println("Awaiting input...");
-                program[program[index + 1]] = Integer.parseInt(scanner.nextLine());
-                return index + 2;
+                if (!input.isEmpty()) {
+                    application[application[index + 1]] = input.poll();
+                    index += 2;
+                } else {
+                    paused = true;
+                }
+                break;
 
             case OpCodes.OUTPUT:
-                args = decodeParams(1, index, paramMode, program);
-                // System.out.printf("IntComputer output: %s\n", args[0]);
-                output.add(args[0]);
-                return index + 2;
+                first = getParam(1, index, paramMode);
+                output.add(first);
+                index += 2;
+                break;
 
             case OpCodes.JUMP_IF_TRUE:
-                args = decodeParams(2, index, paramMode, program);
-                if (args[0] != 0) {
-                    return args[1];
+                first = getParam(1, index, paramMode);
+                second = getParam(2, index, paramMode);
+                if (first != 0) {
+                    index = second;
+                    break;
                 }
-                return index + 3;
+                index += 3;
+                break;
+
             case OpCodes.JUMP_IF_FALSE:
-                args = decodeParams(2, index, paramMode, program);
-                if (args[0] == 0) {
-                    return args[1];
+                first = getParam(1, index, paramMode);
+                second = getParam(2, index, paramMode);
+                if (first == 0) {
+                    index = second;
+                    break;
                 }
-                return index + 3;
+                index += 3;
+                break;
 
             case OpCodes.LESS_THAN:
-                args = decodeParams(2, index, paramMode, program);
-                if (args[0] < args[1]) {
-                    program[program[index + 3]] = 1;
+                first = getParam(1, index, paramMode);
+                second = getParam(2, index, paramMode);
+                if (first < second) {
+                    application[application[index + 3]] = 1;
                 } else {
-                    program[program[index + 3]] = 0;
+                    application[application[index + 3]] = 0;
                 }
-                return index + 4;
+                index += 4;
+                break;
 
             case OpCodes.EQUALS:
-                args = decodeParams(2, index, paramMode, program);
-                if (args[0] == args[1]) {
-                    program[program[index + 3]] = 1;
+                first = getParam(1, index, paramMode);
+                second = getParam(2, index, paramMode);
+                if (first == second) {
+                    application[application[index + 3]] = 1;
                 } else {
-                    program[program[index + 3]] = 0;
+                    application[application[index + 3]] = 0;
                 }
-                return index + 4;
+                index += 4;
+                break;
 
             case OpCodes.EXIT:
                 // System.out.println("Encountered exit code 99, shutting down.");
-                return null;
+                halted = true;
+                break;
 
             default:
                 throw new IllegalArgumentException(String.format("Unrecognised OP code: %s", opCode));
         }
     }
 
-    private static int[] decodeParams(int numParams, int opCodeIndex, int[] paramModes, int[] program) {
-        int[] decodedArgs = new int[numParams];
-
-        for (int i = 1; i <= numParams; i++) {
-            int mode = paramModes[i-1];
-            int arg = program[opCodeIndex + i];
-            switch (mode) {
-                case 0: // Position mode
-                    decodedArgs[i-1] = program[arg];
-                    break;
-                case 1: // Immediate mode
-                    decodedArgs[i-1] = arg;
-                    break;
-                default:
-                    throw new IllegalArgumentException(String.format("Illegal mode: %s", mode));
-            }
+    private int getParam(int paramNum, int forIndex, int[] modes) {
+        int mode = modes[paramNum - 1];
+        int immediateValue = application[forIndex + paramNum];
+        switch (mode) {
+            case Modes.POSITION:
+                return application[immediateValue];
+            case Modes.IMMEDIATE:
+                return immediateValue;
+            default:
+                throw new IllegalArgumentException(String.format("Illegal mode: %s", mode));
         }
-        return decodedArgs;
     }
 }
