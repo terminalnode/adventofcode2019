@@ -9,15 +9,22 @@ import java.util.Set;
 
 class MonitoringStation {
     public static void main(String[] args) throws IOException {
-        Set<Coordinate> asteroids = getInput("input");
+        partOne("input");
+    }
+
+    private static void partOne(String fileName) throws IOException {
+        Set<Coordinate> asteroids = getInput(fileName);
         List<Integer> inLineOfSight = new ArrayList<>();
-        
+
         for (Coordinate asteroid : asteroids) {
             inLineOfSight.add(
                 getVisibleAsteroids(asteroid, asteroids));
         }
+
         Collections.sort(inLineOfSight);
-        System.out.println(inLineOfSight.get(inLineOfSight.size() - 1));
+        int answer = inLineOfSight.get(inLineOfSight.size() - 1);
+
+        System.out.printf("Part 1: %s\n", answer);
     }
 
     private static int getVisibleAsteroids(Coordinate origin, Set<Coordinate> others) {
@@ -33,7 +40,7 @@ class MonitoringStation {
                 lines.add(newLine);
             }
         }
-        
+
         return lines.size();
     }
 
