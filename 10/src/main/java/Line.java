@@ -1,11 +1,17 @@
 public class Line {
     private final double slope;
     private final double xSign;
+    private final double distance;
+    private final Asteroid origin;
+    private final Asteroid destination;
 
     public Line(Asteroid origin, Asteroid destination) {
+        this.origin = origin;
+        this.destination = destination;
         double xDiff = origin.getX() - destination.getX();
         double yDiff = origin.getY() - destination.getY();
         slope = yDiff / xDiff;
+        distance = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
 
         if (origin.getX() > destination.getX()) {
             xSign = 1;
