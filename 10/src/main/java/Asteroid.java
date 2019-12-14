@@ -1,9 +1,9 @@
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class Asteroid {
+public class Asteroid implements Comparable<Asteroid> {
     private final int y, x;
     private List<Line> distances;
 
@@ -26,7 +26,10 @@ public class Asteroid {
     }
 
     public int getNumberOfVisibleAsteroids() {
-        return new HashSet<>(distances).size();
+        return distances
+            .stream()
+            .collect(Collectors.toSet())
+            .size();
     }
 
     public Asteroid calculateDistances(Set<Asteroid> allAsteroids) {
@@ -38,9 +41,7 @@ public class Asteroid {
             }
 
             Line newLine = new Line(this, other);
-            if (!Double.isNaN(newLine.getSlope())) {
-                distances.add(newLine);
-            }
+            distances.add(newLine);
         }
 
         return this;
@@ -62,5 +63,15 @@ public class Asteroid {
             }
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(Asteroid other) {
+        return this.getNumberOfVisibleAsteroids() - other.getNumberOfVisibleAsteroids();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Asteroid(%s,%s)", x, y);
     }
 }

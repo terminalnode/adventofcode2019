@@ -1,41 +1,51 @@
-public class Line {
-    private final double slope;
-    private final double xSign;
+import org.apache.commons.math3.fraction.Fraction;
+
+public class Line implements Comparable<Line> {
+    private final Fraction slope;
+    private final int xSign;
     private final double distance;
-    private final Asteroid origin;
     private final Asteroid destination;
 
     public Line(Asteroid origin, Asteroid destination) {
-        this.origin = origin;
         this.destination = destination;
-        double xDiff = origin.getX() - destination.getX();
-        double yDiff = origin.getY() - destination.getY();
-        slope = yDiff / xDiff;
-        distance = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+        int xDiff = origin.getX() - destination.getX();
+        int yDiff = origin.getY() - destination.getY();
 
-        if (origin.getX() > destination.getX()) {
-            xSign = 1;
+        if (xDiff != 0) {
+            slope = new Fraction(yDiff, xDiff);
         } else {
-            xSign = -1;
+            // Approximate positive / negative infinity
+            slope = yDiff > 0 ?
+                new Fraction(Integer.MAX_VALUE, 1) :
+                new Fraction(Integer.MIN_VALUE, 1);
         }
+        distance = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+        xSign = origin.getX() > destination.getX() ? 1 : -1;
     }
 
     public double getXSign() {
         return xSign;
     }
 
-    public double getSlope() {
+    public Fraction getSlope() {
         return slope;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public Asteroid getDestination() {
+        return destination;
     }
 
     @Override
     public int hashCode() {
         // Apparently bijective algorithm is a good choice
         // for getting a unique hashcode from two numbers
-        int slopeHash = Double.valueOf(slope).hashCode();
-        int xSignHash = Double.valueOf(xSign).hashCode();
+        int slopeHash = slope.hashCode();
 
-        int tmp = xSignHash + (slopeHash + 1) / 2;
+        int tmp = xSign + (slopeHash + 1) / 2;
         return slopeHash + tmp * tmp;
     }
 
@@ -43,8 +53,13 @@ public class Line {
     public boolean equals(Object obj) {
         if (obj.getClass().equals(this.getClass())) {
             Line other = (Line) obj;
-            return other.getSlope() == this.slope && other.getXSign() == this.xSign;
+            return other.getSlope().equals(this.slope) && other.getXSign() == this.xSign;
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(Line other) {
+        return Double.compare(this.getDistance(), other.getDistance());
     }
 }

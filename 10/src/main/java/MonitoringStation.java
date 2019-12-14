@@ -1,22 +1,33 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.MissingResourceException;
-import java.util.OptionalInt;
 import java.util.Set;
 
 class MonitoringStation {
     public static void main(String[] args) throws IOException {
-        partOne("input");
+        Set<Asteroid> asteroids = getInput("input");
+        Set<Asteroid> asteroids2 = getInput("test5");
+        partOne(asteroids);
+        partTwo(asteroids2);
     }
 
-    private static void partOne(String fileName) throws IOException {
-        Set<Asteroid> asteroids = getInput(fileName);
+    private static void partTwo(Set<Asteroid> asteroids) throws IOException {
+    }
+
+    private static void partOne(Set<Asteroid> asteroids) throws IOException {
+        Asteroid bestAsteroid = getBestAsteroid(asteroids);
+        System.out.printf("Part one: %s\n", bestAsteroid.getNumberOfVisibleAsteroids());
+    }
+
+    private static Asteroid getBestAsteroid(Set<Asteroid> asteroids) {
         asteroids.forEach(x -> x.calculateDistances(asteroids));
-        OptionalInt mostVisible = asteroids.stream()
-            .mapToInt(x -> x.getNumberOfVisibleAsteroids())
-            .max();
-        System.out.printf("Part one: %s\n", mostVisible.getAsInt());
+        List<Asteroid> asteroidList = new ArrayList<>(asteroids);
+        Collections.sort(asteroidList);
+        return asteroidList.get(asteroidList.size() - 1);
     }
 
     private static Set<Asteroid> getInput(String fileName) throws IOException {
