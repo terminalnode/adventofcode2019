@@ -16,11 +16,11 @@ public class Line implements Comparable<Line> {
         } else {
             // Approximate positive / negative infinity
             slope = yDiff > 0 ?
-                new Fraction(Integer.MAX_VALUE, 1) :
-                new Fraction(Integer.MIN_VALUE, 1);
+                new Fraction(Integer.MIN_VALUE, 1) :
+                new Fraction(Integer.MAX_VALUE, 1);
         }
         distance = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
-        xSign = origin.getX() > destination.getX() ? 1 : -1;
+        xSign = origin.getX() > destination.getX() ? -1 : 1;
     }
 
     public double getXSign() {
