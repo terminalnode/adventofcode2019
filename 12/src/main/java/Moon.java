@@ -23,20 +23,28 @@ public class Moon {
         vz = 0;
     }
 
-    public void updateVelocity() {
+    public void updateXVelocity() {
         for (Moon moon : moons) {
             if (moon.getX() > x) {
                 vx++;
             } else if (moon.getX() < x) {
                 vx--;
             }
+        }
+    }
 
+    public void updateYVelocity() {
+        for (Moon moon : moons) {
             if (moon.getY() > y) {
                 vy++;
             } else if (moon.getY() < y) {
                 vy--;
             }
+        }
+    }
 
+    public void updateZVelocity() {
+        for (Moon moon : moons) {
             if (moon.getZ() > z) {
                 vz++;
             } else if (moon.getZ() < z) {
@@ -45,10 +53,28 @@ public class Moon {
         }
     }
 
-    public void updatePosition() {
+    public void updateVelocity() {
+        updateXVelocity();
+        updateYVelocity();
+        updateZVelocity();
+    }
+
+    public void updateXPosition() {
         x += vx;
+    }
+
+    public void updateYPosition() {
         y += vy;
+    }
+
+    public void updateZPosition() {
         z += vz;
+    }
+
+    public void updatePosition() {
+        updateXPosition();
+        updateYPosition();
+        updateZPosition();
     }
 
     public int getTotalEnergy() {
@@ -73,6 +99,23 @@ public class Moon {
 
     public int getZ() {
         return z;
+    }
+
+    public int hashX() {
+        return bijectiveAlgorithm(x, vx);
+    }
+
+    public int hashY() {
+        return bijectiveAlgorithm(y, vy);
+    }
+
+    public int hashZ() {
+        return bijectiveAlgorithm(z, vz);
+    }
+
+    private int bijectiveAlgorithm(int a, int b) {
+        int tmp = a + (b + 1) / 2;
+        return b + tmp * tmp;
     }
 
     @Override
