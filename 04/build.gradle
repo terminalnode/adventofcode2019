@@ -3,8 +3,6 @@ plugins {
     id 'application'
 }
 
-mainClassName = 'SecureContainer'
-
 repositories {
     jcenter()
 }
@@ -12,5 +10,6 @@ repositories {
 dependencies {
 }
 
-test {
+application {
+    mainClassName = 'SecureContainer'
 }

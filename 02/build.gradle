@@ -1,15 +1,15 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
-group 'adventofcode2019_day02'
-version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
-
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
+}
+
+application {
+    mainClassName = 'ProgramAlarm'
 }
