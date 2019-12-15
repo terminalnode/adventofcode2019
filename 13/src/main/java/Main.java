@@ -5,9 +5,27 @@ import java.util.MissingResourceException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        long[] application = getInput("input");
+        partOne("input");
+        partTwo("input");
+    }
+
+    private static void partTwo(String fileName) throws IOException {
+        long[] application = getInput(fileName);
         ArcadeCabinet arcadeCabinet = new ArcadeCabinet(application);
-        arcadeCabinet.renderScreen();
+        arcadeCabinet.setIndexTo(0, 2);
+        arcadeCabinet.firstScreenRender();
+        while (!arcadeCabinet.isHalted()) {
+            arcadeCabinet.updateScreen();
+        }
+        System.out.printf("Part two (with %s): %s\n", fileName, arcadeCabinet.getPlayerScore());
+    }
+
+    public static void partOne(String fileName) throws IOException {
+        long[] application = getInput(fileName);
+        ArcadeCabinet arcadeCabinet = new ArcadeCabinet(application);
+
+        int answer = arcadeCabinet.fakeScreenRender();
+        System.out.printf("Part one (with %s): %s\n", fileName, answer);
     }
 
     private static long[] getInput(String fileName) throws IOException {
