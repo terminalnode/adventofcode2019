@@ -111,6 +111,35 @@ public class Robot {
         map.put(new Coordinate(0,0), CoordinateType.ORIGIN);
     }
 
+    public int gasMap() {
+        if (oxygen == null) {
+            exploreMap();
+        }
+
+        Set<Coordinate> remainingCoordinates = map.keySet()
+            .stream()
+            .filter(x -> map.get(x).equals(CoordinateType.EMPTY))
+            .collect(Collectors.toSet());
+        List<Coordinate> activeCoordinates = new ArrayList<>();
+        activeCoordinates.add(oxygen);
+
+        int steps = 0;
+        while (!remainingCoordinates.isEmpty()) {
+            List<Coordinate> newActiveCoordinates = new ArrayList<>();
+            steps++;
+            for (Coordinate coordinate : activeCoordinates) {
+                for (Coordinate neighbour : coordinate.getNeighbours()) {
+                    if (remainingCoordinates.contains(neighbour)) {
+                        remainingCoordinates.remove(neighbour);
+                        newActiveCoordinates.add(neighbour);
+                    }
+                }
+            }
+            activeCoordinates = newActiveCoordinates;
+        }
+        return steps;
+    }
+
     public int pathLengthFromOriginToOxygen() {
         if (oxygen == null) {
             exploreMap();
