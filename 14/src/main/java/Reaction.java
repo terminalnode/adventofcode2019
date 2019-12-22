@@ -24,6 +24,11 @@ class Reaction {
 
     @Override
     public String toString() {
-        return super.toString();
+        List<String> reagentStrings = reagents.stream()
+            .map(x -> x.toString())
+            .collect(Collectors.toList());
+        String leftSide = String.join(", ", reagentStrings);
+
+        return String.format("%s => %s", leftSide, endProduct.toString());
     }
 }

@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
@@ -27,10 +28,11 @@ public class Main {
     }
 
     public static void partOne(String fileName) throws IOException {
-        List<Reaction> reactions = getInput(fileName);
+        Map<String, Reaction> reactions = getInput(fileName);
+        System.out.println(reactions.size());
     }
 
-    private static List<Reaction> getInput(String fileName) throws IOException {
+    private static Map<String, Reaction> getInput(String fileName) throws IOException {
         InputStream is = Thread
             .currentThread()
             .getContextClassLoader()
@@ -42,7 +44,8 @@ public class Main {
                     .strip()
                     .split("\n"))
                 .map(x -> new Reaction(x))
-                .collect(Collectors.toList());
+                .collect(
+                    Collectors.toMap(x -> x.getEndProduct().getName(), x -> x));
         }
 
         throw new MissingResourceException(
