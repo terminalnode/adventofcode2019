@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.stream.Collectors;
@@ -12,24 +11,26 @@ public class Main {
         partOne("test0");
 
         // Should return 165
-        // partOne("test1");
+        partOne("test1");
 
         // Should return 13312
-        // partOne("test2");
+        partOne("test2");
 
         // Should return 180697
-        // partOne("test3");
+        partOne("test3");
 
         // Should return 2210736
-        // partOne("test4");
+        partOne("test4");
 
-        // TBA
-        // partOne("input");
+        // Will return 387001
+        partOne("input");
     }
 
     public static void partOne(String fileName) throws IOException {
         Map<String, Reaction> reactions = getInput(fileName);
-        System.out.println(reactions.size());
+        ReactionManager rm = new ReactionManager(reactions);
+        rm.produce("FUEL", 1);
+        System.out.printf("Part one (using %s): %s\n", fileName, rm.getOreConsumed());
     }
 
     private static Map<String, Reaction> getInput(String fileName) throws IOException {
