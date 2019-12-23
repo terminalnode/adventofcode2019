@@ -3,8 +3,8 @@ import java.util.stream.Collectors;
 
 class ReactionManager {
     private final Map<String, Reaction> reactionMap;
-    private final Map<String, Integer> inventory;
-    private int oreConsumed;
+    private final Map<String, Long> inventory;
+    private long oreConsumed;
 
     public ReactionManager(Map<String, Reaction> reactions) {
         reactionMap = reactions;
@@ -12,20 +12,20 @@ class ReactionManager {
         inventory = reactionMap
             .keySet()
             .stream()
-            .collect(Collectors.toMap(x -> x, x -> 0));
+            .collect(Collectors.toMap(x -> x, x -> 0L));
     }
 
-    public void produce(String reagent, int quantity) {
+    public void produce(String reagent, long quantity) {
         Reaction desiredReaction = reactionMap.get(reagent);
         ReagentQuantity endProduct = desiredReaction.getEndProduct();
 
-        int multiplier = 1;
+        long multiplier = 1;
         while (endProduct.getQuantity() * multiplier < quantity) {
             multiplier++;
         }
 
         for (ReagentQuantity rq : desiredReaction.getReagents()) {
-            int required = multiplier * rq.getQuantity();
+            long required = multiplier * rq.getQuantity();
 
             if (rq.getName().equals("ORE")) {
                 oreConsumed += rq.getQuantity() * multiplier;
@@ -35,12 +35,12 @@ class ReactionManager {
                     produce(rq.getName(), required - inventory.get(rq.getName()));
                 }
 
-            int newInventorySize = inventory.get(rq.getName()) - required;
+            long newInventorySize = inventory.get(rq.getName()) - required;
             inventory.put(rq.getName(), newInventorySize);
             }
         }
 
-        int newInventorySize = inventory.get(reagent) + endProduct.getQuantity() * multiplier;
+        long newInventorySize = inventory.get(reagent) + endProduct.getQuantity() * multiplier;
         inventory.put(reagent, newInventorySize);
     }
 
@@ -48,7 +48,7 @@ class ReactionManager {
         oreConsumed = 0;
     }
 
-    public int getOreConsumed() {
+    public long getOreConsumed() {
         return oreConsumed;
     }
 }
