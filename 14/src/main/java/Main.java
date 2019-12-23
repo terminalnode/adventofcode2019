@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -16,18 +17,19 @@ public class Main {
         partOne("input", 387001L);
 
         // Part two
+        // Insanely slow, but it works. Takes about 3 minutes to get an answer.
         System.out.println();
-        partTwo("test2", 13312L);
-        partTwo("test3", 180697L);
-        partTwo("test4", 2210736L);
-        partTwo("input", 387001L);
+        //partTwo("test2", 82892753L);
+        //partTwo("test3", 5586022L);
+        //partTwo("test4", 460664L);
+        partTwo("input", 3412429L);
     }
 
     public static void partTwo(String fileName, long expected) throws IOException {
         Map<String, Reaction> reactions = getInput(fileName);
         ReactionManager rm = new ReactionManager(reactions);
 
-        long result = 0L;
+        long result = rm.binarySearch();
         String correctResponse = result == expected ? "Correct!" : "Wrong!";
         System.out.printf("Part two (using %s): %s (%s)\n", fileName, result, correctResponse);
     }
@@ -35,10 +37,10 @@ public class Main {
     public static void partOne(String fileName, long expected) throws IOException {
         Map<String, Reaction> reactions = getInput(fileName);
         ReactionManager rm = new ReactionManager(reactions);
-        rm.produce("FUEL", 1);
+        rm.produce(1);
 
-        long result = rm.getOreConsumed();
-        String correctResponse = result == expected ? "Correct!" : "Wrong!";
+        BigInteger result = rm.getOreConsumed();
+        String correctResponse = result.compareTo(BigInteger.valueOf(expected)) == 0 ? "Correct!" : "Wrong!";
         System.out.printf("Part one (using %s): %s (%s)\n", fileName, result, correctResponse);
     }
 
