@@ -12,11 +12,11 @@ public class VacuumRobot {
         brain = new IntcodeComputer(application);
         brainInput = new LinkedList<>();
         brain.setInput(brainInput);
-        brain.reinitialize();
         asciiMap = null;
     }
 
     public void updateMap() {
+        brain.reinitialize();
         brain.run();
         StringBuilder sb = new StringBuilder();
         while (!brain.getOutput().isEmpty()) {
@@ -32,7 +32,7 @@ public class VacuumRobot {
 
         List<int[]> result = new ArrayList<>();
 
-        String[] mapRows = asciiMap.split("\n"); 
+        String[] mapRows = asciiMap.split("\n");
         for (int y = 1; y < mapRows.length - 2; y++) {
             for (int x = 1; x < mapRows[y].length() - 2; x++) {
                if (mapRows[y].charAt(x) == '#') {
@@ -46,11 +46,18 @@ public class VacuumRobot {
                }
             }
         }
-
         return result;
     }
 
+    public void setBotToMovementMode() {
+        brain.reinitialize();
+        brain.getApplication().put(0L, 2L);
+    }
+
     public String getAsciiMap() {
+        if (asciiMap == null) {
+            updateMap();
+        }
         return asciiMap;
     }
 }

@@ -1,11 +1,21 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.MissingResourceException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         partOne("input");
+        partTwo("input");
+    }
+
+    private static void partTwo(String fileName) throws IOException {
+        long[] application = getInput(fileName);
+        VacuumRobot robot = new VacuumRobot(application);
+
+        LivingMap livingMap = new LivingMap(robot.getAsciiMap());
+        List<String> stepsToTake = livingMap.autoMove();
     }
 
     private static void partOne(String fileName) throws IOException {
