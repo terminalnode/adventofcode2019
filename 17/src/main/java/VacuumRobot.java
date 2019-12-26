@@ -15,8 +15,23 @@ public class VacuumRobot {
         asciiMap = null;
     }
 
-    public void updateMap() {
+    public void addInput(long input) {
+        brainInput.add(input);
+    }
+
+    public void reinitialize() {
         brain.reinitialize();
+    }
+
+    public IntcodeComputer getBrain() {
+        return brain;
+    }
+
+    public void run() {
+        brain.run();
+    }
+
+    public void updateMap() {
         brain.run();
         StringBuilder sb = new StringBuilder();
         while (!brain.getOutput().isEmpty()) {
@@ -52,10 +67,12 @@ public class VacuumRobot {
     public void setBotToMovementMode() {
         brain.reinitialize();
         brain.getApplication().put(0L, 2L);
+        updateMap();
     }
 
     public String getAsciiMap() {
         if (asciiMap == null) {
+            brain.reinitialize();
             updateMap();
         }
         return asciiMap;
